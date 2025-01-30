@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "300472710190",
+    "project_id": "sparkapp-3ceb5",
+    "storage_bucket": "sparkapp-3ceb5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:300472710190:android:439dcba88bb3824b935bbf",
+        "android_client_info": {
+          "package_name": "com.example.sparkapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "300472710190-jreb4aa6c49is8mt7enj8eej3r7lkllv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.sparkapp",
+            "certificate_hash": "1784b42ef2f99b55a42a6b39078c451ab39ba4c2"
+          }
+        },
+        {
+          "client_id": "300472710190-omm3i5h50a1g7e6i6bcrg4h4e7hnp2ip.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnisAIu8vJ6xngAG3dwQKo3Efvsz2jidA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "300472710190-omm3i5h50a1g7e6i6bcrg4h4e7hnp2ip.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "300472710190-eo9ng4o38a71ffbp5oc7du4k63rkgjc9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.sparkapp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

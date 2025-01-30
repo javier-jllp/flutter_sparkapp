@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "300472710190",
+    "project_id": "sparkapp-3ceb5",
+    "storage_bucket": "sparkapp-3ceb5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:300472710190:android:439dcba88bb3824b935bbf",
+        "android_client_info": {
+          "package_name": "com.example.sparkapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnisAIu8vJ6xngAG3dwQKo3Efvsz2jidA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
