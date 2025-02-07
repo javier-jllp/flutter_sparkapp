@@ -7,6 +7,7 @@ class AppConfig {
 
 
   String apiDomain = 'http://10.0.2.2:8000/api';
+  String endpointS3 = 'https://g1n0.c12.e2-3.dev/storage-sparkapp-dev';
   String apiKey = 'pi31415926535';
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 

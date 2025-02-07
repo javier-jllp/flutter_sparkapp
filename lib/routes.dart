@@ -1,7 +1,8 @@
 import 'package:go_router/go_router.dart';
 
-import 'features/accounts/login_screen.dart';
-import 'features/root_screen.dart';
+import './features/accounts/login_screen.dart';
+import './features/root_screen.dart';
+import './my_widgets/image_view.dart';  
 
 final GoRouter myRouter = GoRouter(
   initialLocation: '/login',
@@ -13,6 +14,14 @@ final GoRouter myRouter = GoRouter(
     GoRoute(
       path: '/',
       builder: (context, state) => RootScreen(),
+    ),
+
+    GoRoute(
+      path: '/image-view',
+      builder: (context, state) {
+        final url = state.extra as String;
+        return ImageView(url: url);
+      }
     ),
   ]
 );

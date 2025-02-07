@@ -49,13 +49,18 @@ dependencies:
   google_fonts: ^6.2.1
   flutter_secure_storage: ^9.2.4 # Para almacenar credenciales en el dispositivo
   dio: ^5.7.0    # Para realizar peticiones HTTP
+  jwt_decoder: ^2.0.1 # Para decodificar el token JWT
   http_parser: ^4.1.2 # Para parsear respuestas de la API y subir archivos
   mime: ^2.0.0 # Para obtener el mime type de un archivo
   device_info_plus: ^11.2.1 # Para obtener informacion del dispositivo
   geolocator: ^13.0.2 # Para obtener la ubicacion del dispositivo en tiempo real
   permission_handler: ^11.3.1 # Para manejar los permisos del dispositivo
   uuid: ^4.5.1 # Para generar identificadores unicos
-  synchronized: ^3.3.0+3 # Para sincronizar procesos en tiempo real
+  sembast: ^3.8.2 # Para manejar la base de datos local NoSQL
+  photo_view: ^0.15.0 # Para ver imagenes en pantalla completa
+  cached_network_image: ^3.4.1 # Para manejar imagenes en cache
+  image_picker: ^1.1.2 # Para seleccionar imagenes de la galeria o la camara
+  file_picker: ^8.3.1 # Para seleccionar archivos
 
 dev_dependencies:
   flutter_test:

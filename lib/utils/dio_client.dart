@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
 import 'package:uuid/uuid.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 import '../settings/app_config.dart';
 import '../features/accounts/utils/google_auth.dart';
@@ -45,13 +46,13 @@ class DioClient {
           },
         ),
       );
-      return response.data as Map<String, dynamic>; // Agregar tipo de dato
+      return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
       throw 'Error al realizar la solicitud: ${e.message}';
     }
   }
 
-  Future<List<Map<String, dynamic>>> getList(String path) async {
+  Future<List<Map<String, dynamic>>> getListJson(String path) async {
     try {
       final String? accessToken = await _appConfig.accessToken;
       final Response<dynamic> response = await _dio.get<dynamic>(
@@ -62,7 +63,9 @@ class DioClient {
           },
         ),
       );
-      return response.data as List<Map<String, dynamic>>;
+      return (response.data as List)
+          .map((e) => e as Map<String, dynamic>)
+          .toList();
     } on DioException catch (e) {
       throw 'Error al realizar la solicitud: ${e.message}';
     }
@@ -81,7 +84,7 @@ class DioClient {
           },
         ),
       );
-      return response.data as Map<String, dynamic>; // Agregar tipo de dato
+      return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
       throw 'Error al realizar la solicitud: ${e.message}';
     }
@@ -105,6 +108,39 @@ class DioClient {
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
       throw 'Error al realizar la solicitud: ${e.message}';
+    }
+  }
+
+  Future<Map<String, dynamic>> postFileForm(
+      String path, Map<String, String> data, File file) async {
+    try {
+      final accessToken = await _appConfig.accessToken;
+      final formData = FormData.fromMap(data);
+
+      final mimeType = lookupMimeType(file.path);
+      if (mimeType == null) {
+        throw Exception('No se pudo determinar el tipo MIME del archivo.');
+      }
+      final uuid = const Uuid().v4();
+      formData.files.add(MapEntry(
+          uuid,
+          await MultipartFile.fromFile(file.path,
+              contentType:
+                  MediaType(mimeType.split('/')[0], mimeType.split('/')[1]))));
+      final response = await _dio.post(
+        path,
+        data: formData,
+        options: Options(
+          headers: {
+            if (accessToken != null) 'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw 'Error al realizar la solicitud: ${e.message}';
+    } catch (e) {
+      throw Exception('Error al subir el archivo: $e');
     }
   }
 
@@ -207,10 +243,10 @@ class DioClient {
   }
 
   Future<Map<String, dynamic>> patchForm(
-      String path, Map<String, String> data) async {
+      String path, Map<String, dynamic> data) async {
     try {
       final accessToken = await _appConfig.accessToken;
-      final formData = FormData.fromMap(data) ;
+      final formData = FormData.fromMap(data);
       final response = await _dio.patch(
         path,
         data: formData,
@@ -320,22 +356,26 @@ class AuthenticationService {
   AuthenticationService({required this.dio, required this.appConfig});
 
   Future<void> refreshAccessToken() async {
-    final expRefreshToken = await appConfig.expRefreshToken;
-    final refreshToken = await appConfig.refreshToken;
+    final String? expRefreshToken = await appConfig.expRefreshToken;
+    final String? refreshToken = await appConfig.refreshToken;
 
     // Verificar si el refresh token ha expirado
     if (expRefreshToken != null && _isRefreshTokenExpired(expRefreshToken)) {
       await _logout(); // Cerrar sesión si el refresh token ha expirado
       return; // Salir de la función si se ha cerrado sesión
+    } else if (expRefreshToken == null || expRefreshToken.isEmpty) {
+      await _decodeExpirationRefreshtoken(refreshToken!);
     }
 
-    final expAccessToken = await appConfig.expAccessToken;
+    final String? accessToken = await appConfig.accessToken;
+    final String? expAccessToken = await appConfig.expAccessToken;
 
     // Verificar si el token expira en menos de 2 segundos o ya ha expirado
     if (expAccessToken != null && _isAccessTokenExpired(expAccessToken)) {
       try {
         const path = '/accounts/create_new_access_token';
-        final formData = FormData.fromMap({'refresh_token': refreshToken});
+        final formData =
+            FormData.fromMap({'current_refresh_token': refreshToken});
         final response = await dio.post(
           path,
           data: formData,
@@ -347,8 +387,7 @@ class AuthenticationService {
         if (response.statusCode == 200 || response.statusCode == 201) {
           final Map<String, dynamic> responseData = response.data;
           await appConfig.setStorageAccessToken(responseData['access_token']);
-          await appConfig
-              .setStorageExpAccessToken(responseData['exp_access_token']);
+          await _decodeExpirationAccessToken(responseData['access_token']);
           return;
         } else {
           // Manejar errores de respuesta del servidor (código de estado diferente de 200/201)
@@ -360,6 +399,9 @@ class AuthenticationService {
         // Manejar otros errores
         _handleError(null, e); // Manejar otros errores
       }
+    }else if (expAccessToken == null || expAccessToken.isEmpty) {
+      // guardar la fecha de expiracion si aun no existe el accessToken en flutter_secure_storage
+      await _decodeExpirationAccessToken(accessToken!);
     }
   }
 
@@ -404,4 +446,27 @@ class AuthenticationService {
     // Decides qué hacer aquí: relanzar la excepción o llamar a _logout()
     throw Exception('Error al actualizar token: $error');
   }
+
+  Future<void> _decodeExpirationAccessToken(String accessToken) async {
+    // funcion para decodificar la fecha de expiracion de accesstoken
+    // Guarda la fecha de expiración en el almacenamiento flutter_secure_storage
+    try {
+      DateTime expAccesstoken = JwtDecoder.getExpirationDate(accessToken);
+      appConfig.setStorageExpAccessToken(expAccesstoken.toString()); // Guarda la fecha de expiración en el almacenamiento
+    } catch (e) {
+      throw Exception('Error al decodificar el token: $e');
+    }
+  }
+
+  Future<void> _decodeExpirationRefreshtoken(String refreshToken) async {
+    // funcion para decodificar la fecha de expiracion de refreshtoken
+    // Guarda la fecha de expiración en el almacenamiento flutter_secure_storage
+    try{
+      DateTime expRefreshToken = JwtDecoder.getExpirationDate(refreshToken);
+      appConfig.setStorageExpRefreshToken(expRefreshToken.toString());
+    } catch (e) {
+      throw Exception('Error al decodificar el token: $e');
+    }
+  }
 }
+

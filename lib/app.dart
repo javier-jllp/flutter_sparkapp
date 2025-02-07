@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'package:sparkapp/riverpod/theme.dart';
-import 'package:sparkapp/routes.dart';
+import './riverpod/theme.dart';
+import './routes.dart';
+
+
 
 class SparkApp extends ConsumerWidget {
   const SparkApp({Key? key}) : super(key: key);
@@ -21,7 +23,7 @@ class SparkApp extends ConsumerWidget {
                 scaffoldBackgroundColor: Colors.blue[50],
                 textTheme:  GoogleFonts.robotoTextTheme(
                   const TextTheme(
-                    bodyMedium: TextStyle(color: Colors.black),
+                    bodyMedium: TextStyle(color: Color.fromARGB(255, 80, 80, 80)),
                   ),
                 )
               )
@@ -30,7 +32,7 @@ class SparkApp extends ConsumerWidget {
                 scaffoldBackgroundColor: Colors.grey[850],
                 textTheme: GoogleFonts.robotoTextTheme(
                   const TextTheme(
-                    bodyMedium: TextStyle(color: Colors.white),
+                    bodyMedium: TextStyle(color: Color.fromARGB(255, 206, 206, 206)),
                   ),
                 )),
         routerConfig: myRouter

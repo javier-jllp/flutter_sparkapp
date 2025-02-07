@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sparkapp/riverpod/theme.dart';
 
 PreferredSizeWidget myAppBar(
-    BuildContext context, ThemeNotifier themeNotifier, MyThemes currentTheme) {
+    ThemeNotifier themeNotifier, MyThemes currentTheme) {
   return AppBar(
     title: const Text('SparkApp'),
     backgroundColor: currentTheme == MyThemes.dark

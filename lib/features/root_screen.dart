@@ -6,6 +6,8 @@ import '../my_widgets/app_bar.dart';
 import 'profiles/private/my_profile_screen.dart';
 import './images/list_image_screen.dart';
 import './videos/list_video_screen.dart';
+import './synchronize_db.dart';
+import '../riverpod/bottom_navigation_bar_provider.dart';
 
 class RootScreen extends StatefulWidget {
   RootScreen({Key? key}) : super(key: key);
@@ -15,51 +17,80 @@ class RootScreen extends StatefulWidget {
 }
 
 class _RootScreenState extends State<RootScreen> {
-  
+  final SynchronizeImmutableTables _syncDb = SynchronizeImmutableTables();
+
   @override
   Widget build(BuildContext context) {
     return Consumer(
       builder: (BuildContext context, WidgetRef ref, Widget? child) {
         final currentTheme = ref.watch(themeProvider);
         final themeNotifier = ref.read(themeProvider.notifier);
-
-        return DefaultTabController(
-          length: 4,
-          child: Scaffold(
-            appBar: myAppBar(context, themeNotifier, currentTheme),
-            body: const TabBarView(
-              children: [
-                ListImageScreen(),
-                ListVideoScreen(),
-                MyProfileScreen(),
-              ],
-            ),
-            bottomNavigationBar: TabBar(
-              unselectedLabelColor: currentTheme == MyThemes.light
-                  ? Colors.grey[900]
-                  : Colors.grey[400],
-              labelColor: currentTheme == MyThemes.light
-                  ? Colors.blue 
-                  : Colors.green[200],
-              indicatorColor: currentTheme == MyThemes.light
-                  ? Colors.green 
-                  : Colors.blue[200],
-              tabs: const <Widget> [
-                Tab(
-                  icon: Icon(Icons.image),
-                  text: 'Imágenes',),
-                Tab(
-                  icon: Icon(Icons.videocam_sharp),
-                  text: 'Videos',),
-                Tab(
-                  icon: Icon(Icons.account_circle),
-                  text: 'Javier',),
-              ],
-            ),
-          )
+        final currentIndexNotifier =
+            ref.read(bottomNavigationBarProvider.notifier);
+        final currentIndex = ref.watch(bottomNavigationBarProvider);
+        return FutureBuilder(
+          future: _syncDb.synchronizeTablesDb(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (snapshot.hasError) {
+              return Center(
+                child:
+                    Text('Error al sincronizar los datos: ${snapshot.error}'),
+              );
+            } else {
+              // snapshot.connectionState == ConnectionState.done
+              return _pages(themeNotifier, currentTheme, currentIndexNotifier,
+                  currentIndex);
+            }
+          },
         );
       },
     );
   }
 }
 
+Widget _pages(ThemeNotifier themeNotifier, MyThemes currentTheme,
+    BottomNavigationBarProvider currentIndexNotifier, int currentIndex) {
+  final List<Widget> pages = [
+    const ListImageScreen(),
+    const ListVideoScreen(),
+    const MyProfileScreen()
+  ];
+  return Scaffold(
+    appBar: myAppBar(themeNotifier, currentTheme),
+    body: PageView(
+      controller: PageController(initialPage: currentIndex),
+      children: pages,
+      onPageChanged: (newIndex) {
+        currentIndexNotifier.updateIndex(newIndex);
+      },
+    ),
+    bottomNavigationBar: BottomNavigationBar(
+      backgroundColor:
+          currentTheme == MyThemes.dark ? Colors.grey[850] : Colors.blue[50],
+      unselectedItemColor: 
+          currentTheme == MyThemes.dark ? Colors.green[100] : Colors.grey[800],
+      selectedItemColor: 
+          currentTheme == MyThemes.dark ? Colors.green : Colors.blue,
+      currentIndex: currentIndex,
+      onTap: (value) => currentIndexNotifier.updateIndex(value),
+      items: const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.image),
+          label: 'Imágenes',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.videocam_sharp),
+          label: 'Videos',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.account_circle),
+          label: 'Perfil',
+        ),
+      ],
+    ),
+  );
+}

@@ -53,8 +53,6 @@ class AuthSparkapp {
       }
       await appConfig.setStorageAccessToken(response['access_token']);
       await appConfig.setStorageRefreshToken(response['refresh_token']);
-      await appConfig.setStorageExpAccessToken(response['exp_access_token']);
-      await appConfig.setStorageExpRefreshToken(response['exp_refresh_token']);
       return true;
     } catch (e) {
       rethrow; // O manejar el error de forma apropiada

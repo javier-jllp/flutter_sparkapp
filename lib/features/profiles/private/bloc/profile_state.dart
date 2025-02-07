@@ -8,29 +8,48 @@ class MyProfileLoadingState extends MyProfileState {}
 
 // Estado de error
 class MyProfileErrorState extends MyProfileState {
-  final String error;
-  MyProfileErrorState({required this.error});
+  final String errorMessage;
+  MyProfileErrorState({required this.errorMessage});
 }
 
-// Estado con datos del perfil
-class ProfileLoadedState extends MyProfileState {
+// Estado para modelos y retorno de lista
+class MyProfileLoadedState extends MyProfileState {
   final Map<String, dynamic> profile;
-  ProfileLoadedState({required this.profile});
+  MyProfileLoadedState({required this.profile});
 }
 
-// Estado con lista de profesiones
-class ProfessionsLoadedState extends MyProfileState {
-  final List<Map<String, dynamic>> professions;
-  ProfessionsLoadedState({required this.professions});
+class MyProfileInfoAdditionalLoadedState extends MyProfileState {
+  final Map<String, dynamic> profileInfoAdditional;
+  MyProfileInfoAdditionalLoadedState({required this.profileInfoAdditional});
 }
 
-// Estado con lista de situaciones sentimentales
-class SentimentalSituationsLoadedState extends MyProfileState {
-  final List<Map<String, dynamic>> sentimentalSituations;
-  SentimentalSituationsLoadedState({required this.sentimentalSituations});
+class HobbiesLoadedState extends MyProfileState {
+  final List<Map<String, dynamic>> hobbies;
+  HobbiesLoadedState({required this.hobbies});
 }
 
-// Estado para las actualizaciones
+class SexLoadedState extends MyProfileState {
+  final List<Map<String, dynamic>> sexes;
+  SexLoadedState({required this.sexes});
+}
+
+class SeeksLoadedState extends MyProfileState {
+  final List<Map<String, dynamic>> seeks;
+  SeeksLoadedState({required this.seeks});
+}
+
+class SmokingHabitLoadedState extends MyProfileState {
+  final List<Map<String, dynamic>> smokingHabits;
+  SmokingHabitLoadedState({required this.smokingHabits});
+}
+
+class DrinkingHabitLoadedState extends MyProfileState {
+  final List<Map<String, dynamic>> drinkingHabits;
+  DrinkingHabitLoadedState({required this.drinkingHabits});
+}
+
+
+// Estado para las actualizaciones con retorno simple como json 
 class MyProfileUpdatedState extends MyProfileState {
   final Map<String, dynamic> response;
   final String field; // Campo actualizado
